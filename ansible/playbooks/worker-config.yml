@@ -1,0 +1,35 @@
+---
+- name: Configure EKS worker nodes
+  hosts: all
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Install baseline packages
+      ansible.builtin.dnf:
+        name: "{{ required_packages }}"
+        state: present
+
+    - name: Verify containerd is enabled and running
+      ansible.builtin.systemd:
+        name: containerd
+        enabled: true
+        state: started
+
+    - name: Verify required directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+      loop:
+        - /opt/k8s
+        - /opt/k8s/scripts
+
+    - name: Display worker configuration
+      ansible.builtin.debug:
+        msg:
+          - "Worker: {{ inventory_hostname }}"
+          - "Cluster: {{ kubernetes_cluster_name }}"
+          - "Region: {{ aws_region }}"

@@ -1,0 +1,9 @@
+---
+# EKS worker configuration
+kubernetes_cluster_name: microservices-eks
+aws_region: us-east-2
+
+# Worker baseline
+required_packages:
+  - jq
+  - unzip

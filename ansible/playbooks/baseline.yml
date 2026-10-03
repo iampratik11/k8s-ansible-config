@@ -1,0 +1,31 @@
+---
+- name: Baseline EKS worker validation
+  hosts: all
+  gather_facts: true
+
+  tasks:
+    - name: Verify operating system
+      ansible.builtin.assert:
+        that:
+          - ansible_distribution == "Amazon"
+          - ansible_distribution_major_version == "2023"
+        fail_msg: "Unexpected operating system"
+
+    - name: Verify containerd service
+      ansible.builtin.service_facts:
+
+    - name: Verify containerd is running
+      ansible.builtin.assert:
+        that:
+          - ansible_facts.services['containerd.service'].state == "running"
+        fail_msg: "containerd is not running"
+
+    - name: Display worker baseline
+      ansible.builtin.debug:
+        msg:
+          - "Host: {{ inventory_hostname }}"
+          - "OS: {{ ansible_distribution }} {{ ansible_distribution_version }}"
+          - "Kernel: {{ ansible_kernel }}"
+          - "Python: {{ ansible_python.executable }}"
+          - "Memory: {{ ansible_memtotal_mb }} MB"
+          - "containerd: {{ ansible_facts.services['containerd.service'].state }}"
